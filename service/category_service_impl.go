@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"github.com/go-playground/validator/v10"
 	"stynore/belajar-golang-restful-api/helper"
 	"stynore/belajar-golang-restful-api/model/domain"
 	"stynore/belajar-golang-restful-api/model/web"
@@ -12,9 +13,12 @@ import (
 type CategoryServiceImpl struct {
 	CategoryRepository repository.CategoryRepository
 	DB                 *sql.DB
+	validate           *validator.Validate
 }
 
 func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) web.CategoryResponse {
+	err := service.validate.Struct(request)
+	helper.PanicIfError(err)
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRolback(tx)
@@ -26,6 +30,9 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request web.Cate
 }
 
 func (service *CategoryServiceImpl) Update(ctx context.Context, request web.CategoryUpdateRequest) web.CategoryResponse {
+	err := service.validate.Struct(request)
+	helper.PanicIfError(err)
+
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRolback(tx)
